@@ -1,560 +1,506 @@
-<html lang="en"><head>
+<html><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polycool | Institutional Grade Whale Tracking</title>
+    <title>Polycool - The Bloomberg for Polymarket</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/phosphor-icons"></script>
     <style>
         :root {
-            --bg-deep: #FFFFFF;
-            --bg-panel: #F5F5F3;
-            --text-primary: #1A1A1A;
-            --text-secondary: #777777;
-
-            --accent-beige: #FF6B00;
-            --accent-dim: #FFB380;
-
-            --border-light: rgba(0, 0, 0, 0.08);
-            --border-accent: rgba(255, 107, 0, 0.3);
-
-            --font-display: 'Inter', system-ui, -apple-system, sans-serif;
-            --font-mono: 'JetBrains Mono', 'Space Mono', monospace;
-
-            --spacing-unit: 24px;
-            --container-width: 1400px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
+            --bg-body: #E8EBF2;
+            --card-bg: #FFFFFF;
+            --accent-lime: #DFFF00;
+            --accent-blue: #9FB9FF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --pill-bg: #F3F4F6;
         }
 
         body {
-            background-color: var(--bg-deep);
-            color: var(--text-primary);
-            font-family: var(--font-display);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             overflow-x: hidden;
-            font-size: 16px;
-            line-height: 1.5;
         }
 
-        .halftone-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
-            background-size: 24px 24px;
-            opacity: 0.4;
-            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .noise-overlay {
-            display: none;
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: 80px 1fr 80px;
-            min-height: 100vh;
-            position: relative;
-            z-index: 1;
-            border-left: 1px solid var(--border-light);
-            border-right: 1px solid var(--border-light);
-            max-width: var(--container-width);
-            margin: 0 auto;
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
-        .main-column {
-            border-left: 1px solid var(--border-light);
-            border-right: 1px solid var(--border-light);
-            display: flex;
-            flex-direction: column;
+        .animate-fade-up { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-scroll { animation: scroll 40s linear infinite; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+
+        .glass-card {
+            background: var(--card-bg);
+            border-radius: 2.5rem;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
         }
 
-        .sidebar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            font-family: var(--font-mono);
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: var(--accent-beige);
-            text-transform: uppercase;
-            padding: 40px 0;
-            position: sticky;
-            top: 0;
-            height: 100vh;
+        .btn-primary {
+            background: var(--accent-lime);
+            color: #000;
+            border-radius: 9999px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(200, 230, 0, 0.3);
+        }
+        .btn-primary:hover {
+            background: #Eaff30;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(200, 230, 0, 0.4);
         }
 
-        h1, h2, h3 {
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 9999px;
+            border: 1px solid #E5E7EB;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #F9FAFB;
+            border-color: #D1D5DB;
         }
 
-        .display-text {
-            font-size: clamp(3rem, 6vw, 6rem);
-            line-height: 0.9;
-            letter-spacing: -0.04em;
-            color: var(--text-primary);
-            margin-bottom: var(--spacing-unit);
+        .text-gradient {
+            background: linear-gradient(135deg, #111 0%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .label-text {
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--accent-beige);
-            margin-bottom: 1rem;
-            display: block;
+        .pill-row {
+            background: var(--pill-bg);
+            border-radius: 1.5rem;
+            transition: all 0.2s;
         }
+        .pill-row:hover { background: #EEF0F4; }
 
-        .nav-link {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            margin-left: 2rem;
-            transition: color 0.3s ease;
-        }
-        .nav-link:hover { color: var(--accent-beige); }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 32px 48px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .logo {
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            font-size: 1.25rem;
-        }
-
-        .hero {
-            padding: 80px 48px;
-            min-height: 70vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .radar-graphic {
-            position: absolute;
-            right: -100px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 600px;
-            height: 600px;
-            border: 1px solid var(--border-accent);
-            border-radius: 50%;
-            opacity: 0.4;
-            z-index: -1;
-        }
-        .radar-inner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 70%;
-            height: 70%;
-            border: 1px solid var(--border-accent);
-            border-radius: 50%;
-        }
-        .radar-line {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 50%;
-            height: 1px;
-            transform-origin: left center;
-            animation: scan 4s infinite linear;
-            background: linear-gradient(90deg, transparent, var(--accent-beige));
-        }
-
-        @keyframes scan {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .btn-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 12px 32px;
-            border-radius: 999px;
-            border: 1px solid var(--text-primary);
-            background: transparent;
-            color: var(--text-primary);
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            text-decoration: none;
-            margin-top: 32px;
-        }
-        .btn-pill:hover {
-            background: var(--text-primary);
-            color: var(--bg-deep);
-        }
-
-        .btn-accent {
-            background: var(--accent-beige);
-            border-color: var(--accent-beige);
-            color: #FFFFFF;
-            font-weight: 600;
-        }
-        .btn-accent:hover {
-            background: #6B613F;
-            border-color: #6B613F;
-        }
-
-        .stats-ticker {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            border-top: 1px solid var(--border-light);
-            border-bottom: 1px solid var(--border-light);
-        }
-        .stat-item {
-            padding: 24px;
-            border-right: 1px solid var(--border-light);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .stat-item:last-child { border-right: none; }
-        .stat-val { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent-beige); }
-        .stat-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); }
-
-        .feature-list {
-            padding: 80px 48px;
-            background: var(--bg-panel);
-        }
-
-        .list-row {
-            display: flex;
-            align-items: center;
-            padding: 32px 0;
-            border-bottom: 1px solid var(--border-light);
-            transition: background 0.3s;
-        }
-        .list-row:first-child { border-top: 1px solid var(--border-light); }
-        .list-row:hover { background: rgba(0,0,0,0.02); }
-
-        .list-idx {
-            font-family: 'Times New Roman', serif;
-            font-size: 2.5rem;
-            color: var(--text-secondary);
-            width: 80px;
-            opacity: 0.5;
-            font-style: italic;
-        }
-
-        .list-content {
-            flex: 1;
-            padding-left: 24px;
-        }
-
-        .list-title {
-            font-size: 1.5rem;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .list-desc {
-            color: var(--text-secondary);
-            max-width: 500px;
-            font-size: 0.95rem;
-        }
-
-        .list-meta {
-            font-family: var(--font-mono);
-            color: var(--accent-beige);
-            font-size: 0.8rem;
-            border: 1px solid var(--border-accent);
-            padding: 4px 12px;
-            border-radius: 99px;
-        }
-
-        .preview-section {
-            padding: 80px 48px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 64px;
-            align-items: center;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .chat-ui {
-            background: #F0EFEC;
-            border: 1px solid var(--border-light);
-            padding: 24px;
-            border-radius: 4px;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            position: relative;
-        }
-
-        .chat-bubble {
-            background: #FFFFFF;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-left: 2px solid var(--accent-beige);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .chat-header { color: var(--accent-beige); margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .chat-row { display: flex; justify-content: space-between; margin-bottom: 4px; color: #555; }
-        .chat-hl { color: var(--text-primary); font-weight: bold; }
-        .chat-btn {
-            background: var(--accent-beige);
-            text-align: center;
-            padding: 8px;
-            margin-top: 8px;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-        }
-
-        .cta-section {
-            padding: 120px 48px;
-            text-align: center;
-            background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-panel) 100%);
-            position: relative;
-        }
-
-        .grid-lines {
-            position: absolute;
-            inset: 0;
-            background-image: linear-gradient(to right, var(--border-light) 1px, transparent 1px),
-                              linear-gradient(to bottom, var(--border-light) 1px, transparent 1px);
-            background-size: 100px 100px;
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 1em;
-            background-color: var(--accent-beige);
-            animation: blink 1s step-end infinite;
-            vertical-align: middle;
-        }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        @media (max-width: 900px) {
-            .grid-container { grid-template-columns: 1fr; border: none; }
-            .sidebar { display: none; }
-            .hero { padding: 40px 24px; min-height: auto; }
-            .display-text { font-size: 2.5rem; }
-            .preview-section { grid-template-columns: 1fr; }
-            .stats-ticker { grid-template-columns: 1fr 1fr; }
-            .radar-graphic { width: 300px; height: 300px; right: -50px; }
-            .main-column { border: none; }
-        }
+        .soft-blue-accent { background-color: var(--accent-blue); }
     </style>
 </head>
-<body>
+<body class="antialiased selection:bg-[#DFFF00] selection:text-black">
 
-    <div class="halftone-bg"></div>
-
-    <div class="grid-container">
-
-        <div class="sidebar">
-            <span>POLYCOOL // SYSTEM_V1.0</span>
+    <nav class="fixed w-full z-50 top-0 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-[#DFFF00] rounded-full flex items-center justify-center text-black font-bold text-xl tracking-tighter shadow-sm">P</div>
+                <span class="font-bold text-xl tracking-tight text-gray-900">Polycool</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
+                <a href="#features" class="hover:text-black transition-colors">Features</a>
+                <a href="#signals" class="hover:text-black transition-colors">Signals</a>
+                <a href="#pricing" class="hover:text-black transition-colors">Pricing</a>
+                <a href="#" class="hover:text-black transition-colors">Manifesto</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="#" class="text-sm font-medium text-gray-500 hover:text-black transition-colors hidden sm:block">Log in</a>
+                <a href="#" class="btn-primary px-6 py-3 text-sm font-bold flex items-center gap-2">
+                    <span>Launch Bot</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </a>
+            </div>
         </div>
+    </nav>
 
-        <main class="main-column">
+    <div class="fixed top-20 w-full z-40 bg-white border-b border-gray-100 py-3 overflow-hidden flex whitespace-nowrap shadow-sm">
+        <div class="animate-scroll flex gap-12 items-center text-xs font-mono font-medium text-gray-500">
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-green-600 bg-green-100 px-1.5 rounded text-[10px] font-bold">BUY</span> <span class="text-gray-800">Wallet 0x8a...2b</span> <span class="text-gray-400">|</span> <span class="text-black">Trump 2024</span> <span class="text-green-600 font-bold">+$24,500</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-red-500 bg-red-100 px-1.5 rounded text-[10px] font-bold">SELL</span> <span class="text-gray-800">Wallet 0x1c...9f</span> <span class="text-gray-400">|</span> <span class="text-black">Fed Rates</span> <span class="text-red-500 font-bold">-$12,200</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-green-600 bg-green-100 px-1.5 rounded text-[10px] font-bold">BUY</span> <span class="text-gray-800">Whale 0x99...11</span> <span class="text-gray-400">|</span> <span class="text-black">SpaceX Launch</span> <span class="text-green-600 font-bold">+$150,000</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-green-600 bg-green-100 px-1.5 rounded text-[10px] font-bold">BUY</span> <span class="text-gray-800">SmartMoney</span> <span class="text-gray-400">|</span> <span class="text-black">BTC &gt; 100k</span> <span class="text-green-600 font-bold">+$88,000</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-red-500 bg-red-100 px-1.5 rounded text-[10px] font-bold">SELL</span> <span class="text-gray-800">Wallet 0x4d...22</span> <span class="text-gray-400">|</span> <span class="text-black">Taylor Swift</span> <span class="text-red-500 font-bold">-$5,400</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-green-600 bg-green-100 px-1.5 rounded text-[10px] font-bold">BUY</span> <span class="text-gray-800">Wallet 0x8a...2b</span> <span class="text-gray-400">|</span> <span class="text-black">Trump 2024</span> <span class="text-green-600 font-bold">+$24,500</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-red-500 bg-red-100 px-1.5 rounded text-[10px] font-bold">SELL</span> <span class="text-gray-800">Wallet 0x1c...9f</span> <span class="text-gray-400">|</span> <span class="text-black">Fed Rates</span> <span class="text-red-500 font-bold">-$12,200</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-green-600 bg-green-100 px-1.5 rounded text-[10px] font-bold">BUY</span> <span class="text-gray-800">Whale 0x99...11</span> <span class="text-gray-400">|</span> <span class="text-black">SpaceX Launch</span> <span class="text-green-600 font-bold">+$150,000</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-green-600 bg-green-100 px-1.5 rounded text-[10px] font-bold">BUY</span> <span class="text-gray-800">SmartMoney</span> <span class="text-gray-400">|</span> <span class="text-black">BTC &gt; 100k</span> <span class="text-green-600 font-bold">+$88,000</span></div>
+            <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full"><span class="text-red-500 bg-red-100 px-1.5 rounded text-[10px] font-bold">SELL</span> <span class="text-gray-800">Wallet 0x4d...22</span> <span class="text-gray-400">|</span> <span class="text-black">Taylor Swift</span> <span class="text-red-500 font-bold">-$5,400</span></div>
+        </div>
+    </div>
 
-            <header>
-                <div class="logo">POLYCOOL<span style="color:var(--accent-beige)">.LIVE</span></div>
-                <nav style="display: flex; align-items: center;">
-                    <a href="#" class="nav-link">SIGNALS</a>
-                    <a href="#" class="nav-link">LEADERBOARD</a>
-                    <a href="#" class="nav-link" style="color: var(--accent-beige);">LAUNCH BOT &#8599;</a>
-                </nav>
-            </header>
+    <section class="relative min-h-screen pt-48 pb-20 flex flex-col items-center justify-center overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#9FB9FF] rounded-full blur-[120px] opacity-[0.2] pointer-events-none"></div>
+        <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-100 shadow-sm mb-8 animate-fade-up">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DFFF00] opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-[#A3CC00]"></span>
+                </span>
+                <span class="text-xs font-bold text-gray-600 tracking-wide uppercase">Tracking top 0.5% of Wallets</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gray-900 mb-8 animate-fade-up delay-100">
+                The terminal for <br>
+                <span class="text-gray-400">prediction markets.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-up delay-200">
+                Real-time whale alerts, AI convergence signals, and 1-click copy trading.
+                <span class="text-black font-semibold">All inside Telegram.</span>
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up delay-300">
+                <button class="btn-primary h-14 px-10 text-base font-bold w-full sm:w-auto flex items-center justify-center gap-2 group">
+                    Start Tracking Free
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+                <button class="btn-secondary h-14 px-10 font-bold w-full sm:w-auto">View Live Demo</button>
+            </div>
 
-            <section class="hero">
-                <span class="label-text">&#9679; Live Prediction Markets</span>
-                <h1 class="display-text">
-                    Follow the<br>
-                    Smart Money<br>
-                    <span style="color: var(--accent-beige); font-family: 'Times New Roman', serif; font-style: italic;">In Real Time.</span>
-                </h1>
-                <p style="max-width: 500px; color: var(--text-secondary); margin-bottom: 32px; font-size: 1.1rem;">
-                    Track the top 0.5% of Polymarket wallets. Get institutional-grade alerts and 1-click copy trade execution directly within Telegram.
-                </p>
-
-                <div>
-                    <a href="#" class="btn-pill btn-accent">Start Tracking</a>
-                    <a href="#" class="btn-pill" style="margin-left: 16px;">View Demo</a>
+            <div class="mt-24 relative mx-auto max-w-4xl animate-fade-up delay-300">
+                <div class="glass-card p-6 text-left max-w-md mx-auto transform hover:scale-105 transition-transform duration-500 cursor-default bg-white">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-[#9FB9FF] flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M236.88,26.19a9,9,0,0,0-9.16-1.57L25.06,103.93a14.22,14.22,0,0,0,2.43,27.21L80,141.45V200a15.92,15.92,0,0,0,10,14.83,15.91,15.91,0,0,0,17.51-3.73l25.32-26.26L173,220a15.88,15.88,0,0,0,10.51,4.11,16.3,16.3,0,0,0,5-.79,15.85,15.85,0,0,0,10.67-11.63L240.94,35.35A9,9,0,0,0,236.88,26.19Zm-61.14,36L87.27,128.21,41.71,114.62Zm-81,116.82v-37l25.33,12.78Zm46.25-10.46-30-15.16,92-86.84Z"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-base">Polycool Bot</h3>
+                                <p class="text-xs text-gray-400 font-medium">Just now</p>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                             <div class="w-1.5 h-1.5 bg-black rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="pill-row p-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-lg shadow-sm">&#128011;</div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs text-gray-500 font-semibold uppercase">Signal</span>
+                                    <span class="text-sm font-bold text-gray-900">Whale Alert</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-mono text-gray-400">#8291</span>
+                        </div>
+                        <div class="pill-row p-4">
+                            <div class="flex justify-between text-xs mb-2">
+                                <span class="text-gray-500 font-medium">Market</span>
+                                <span class="text-gray-900 font-bold">Presidential Election 2024</span>
+                            </div>
+                            <div class="flex justify-between text-xs mb-2">
+                                <span class="text-gray-500 font-medium">Outcome</span>
+                                <span class="text-green-600 bg-green-100 px-2 py-0.5 rounded-full font-bold">Republican Win</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-500 font-medium">Amount</span>
+                                <span class="text-gray-900 font-bold">$125,000 USDC</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-3 bg-black hover:bg-gray-800 text-white text-xs font-bold rounded-2xl transition-all shadow-lg shadow-gray-200 mt-2">Copy Trade (1-Click)</button>
+                    </div>
                 </div>
 
-                <div class="radar-graphic">
-                    <div class="radar-inner"></div>
-                    <div class="radar-line"></div>
+                <div class="absolute top-12 -right-24 w-64 glass-card rounded-[2rem] p-5 rotate-6 -z-10 opacity-80 scale-90">
+                     <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-[#DFFF00] flex items-center justify-center">
+                            <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        </div>
+                        <div>
+                            <div class="h-2 w-16 bg-gray-200 rounded-full mb-1"></div>
+                            <div class="h-2 w-10 bg-gray-100 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                         <div class="h-10 w-full bg-gray-50 rounded-xl"></div>
+                    </div>
                 </div>
-            </section>
 
-            <div class="stats-ticker">
-                <div class="stat-item">
-                    <div class="stat-val">$4.2M</div>
-                    <div class="stat-label">Whale Volume (24H)</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-val">89%</div>
-                    <div class="stat-label">Convergence Accuracy</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-val">12s</div>
-                    <div class="stat-label">Signal Latency</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-val">TOP 0.5%</div>
-                    <div class="stat-label">Wallets Filtered</div>
+                <div class="absolute top-24 -left-24 w-64 glass-card rounded-[2rem] p-5 -rotate-6 -z-10 opacity-80 scale-90">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="h-8 w-8 rounded-full bg-gray-100"></div>
+                        <div class="h-2 w-12 bg-gray-200 rounded-full"></div>
+                    </div>
+                    <div class="space-y-2">
+                         <div class="h-8 w-full bg-gray-50 rounded-xl"></div>
+                         <div class="h-8 w-full bg-gray-50 rounded-xl"></div>
+                    </div>
                 </div>
             </div>
 
-            <section class="preview-section">
-                <div>
-                    <span class="label-text">01 // The Terminal</span>
-                    <h2 style="font-size: 2.5rem; margin-bottom: 24px;">Bloomberg for<br>Prediction Markets</h2>
-                    <p style="color: var(--text-secondary); margin-bottom: 32px; line-height: 1.6;">
-                        Stop refreshing browser tabs. Polycool aggregates on-chain data to identify whale accumulation before the odds shift. Delivered instantly to your device.
-                    </p>
-                    <ul style="list-style: none; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; border-left: 1px solid var(--border-accent); padding-left: 24px; display: flex; flex-direction: column; gap: 16px;">
-                        <li>+ Real-time Orderbook Analysis</li>
-                        <li>+ Wallet Profitability Scoring</li>
-                        <li>+ Wash Trading Filters</li>
-                    </ul>
+            <div class="mt-32 pt-10 border-t border-gray-200/60">
+                <p class="text-sm font-bold text-gray-400 mb-8 tracking-widest">TRUSTED BY ANALYSTS FROM</p>
+                <div class="flex flex-wrap justify-center gap-12 opacity-40 grayscale mix-blend-multiply">
+                    <span class="text-xl font-serif italic font-bold tracking-widest text-black">Polymarket</span>
+                    <span class="text-xl font-sans font-bold tracking-tight text-black">DUNE</span>
+                    <span class="text-xl font-serif font-bold text-black">MESSARI</span>
+                    <span class="text-xl font-mono font-bold text-black">NANSEN</span>
+                    <span class="text-xl font-sans font-black tracking-tighter text-black">ARKHAM</span>
                 </div>
-
-                <div class="chat-ui">
-                    <div style="text-align: center; margin-bottom: 16px; color: #999; font-size: 0.75rem;">TODAY</div>
-
-                    <div class="chat-bubble">
-                        <div class="chat-header">
-                            <span>&#128011; WHALE ALERT</span>
-                            <span>14:02</span>
-                        </div>
-                        <div class="chat-row">
-                            <span>Market:</span>
-                            <span class="chat-hl">Fed Rate Cut (March)</span>
-                        </div>
-                        <div class="chat-row">
-                            <span>Action:</span>
-                            <span style="color: #2E7D32;">BUY 'YES'</span>
-                        </div>
-                        <div class="chat-row">
-                            <span>Size:</span>
-                            <span class="chat-hl">$45,000</span>
-                        </div>
-                        <div class="chat-row">
-                            <span>Wallet Rank:</span>
-                            <span class="chat-hl">#4 Global</span>
-                        </div>
-                        <div class="chat-btn">COPY TRADE (1-CLICK)</div>
-                    </div>
-
-                    <div class="chat-bubble" style="opacity: 0.6;">
-                        <div class="chat-header">
-                            <span>&#129302; AI CONVERGENCE</span>
-                            <span>14:05</span>
-                        </div>
-                        <div class="chat-row">
-                            <span>Signal:</span>
-                            <span>Odds Divergence &gt; 5%</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="feature-list">
-                <div style="margin-bottom: 64px;">
-                    <span class="label-text">02 // WORKFLOW</span>
-                    <h2 style="font-size: 2.5rem;">System Logic</h2>
-                </div>
-
-                <div class="list-row">
-                    <div class="list-idx">1</div>
-                    <div class="list-content">
-                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <h3 class="list-title">Connect</h3>
-                            <span class="list-meta">SETUP: 30S</span>
-                        </div>
-                        <p class="list-desc">Link your Telegram account. No wallet connection required for monitoring.</p>
-                    </div>
-                </div>
-
-                <div class="list-row">
-                    <div class="list-idx">2</div>
-                    <div class="list-content">
-                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <h3 class="list-title">Configure</h3>
-                            <span class="list-meta">FILTERS</span>
-                        </div>
-                        <p class="list-desc">Set alerts for specific markets (Politics, Crypto, Econ) or minimum bet sizes ($1k+).</p>
-                    </div>
-                </div>
-
-                <div class="list-row">
-                    <div class="list-idx">3</div>
-                    <div class="list-content">
-                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <h3 class="list-title">Converge</h3>
-                            <span class="list-meta">AI SIGNAL</span>
-                        </div>
-                        <p class="list-desc">Receive instant notifications when multiple top-ranked whales take the same position.</p>
-                    </div>
-                </div>
-
-                <div class="list-row">
-                    <div class="list-idx">4</div>
-                    <div class="list-content">
-                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <h3 class="list-title">Execution</h3>
-                            <span class="list-meta">AUTO-BOT</span>
-                        </div>
-                        <p class="list-desc">One-tap copy trading via our audited smart contract proxy. Fast execution.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="cta-section">
-                <div class="grid-lines"></div>
-                <div style="position: relative; z-index: 2;">
-                    <h2 style="font-size: clamp(2rem, 4vw, 4rem); margin-bottom: 32px; line-height: 1.1;">
-                        STOP GUESSING.<br>
-                        START KNOWING<span class="cursor"></span>
-                    </h2>
-                    <a href="#" class="btn-pill btn-accent" style="font-size: 1.1rem; padding: 16px 48px;">Launch Telegram Bot</a>
-                    <div style="margin-top: 32px; font-family: var(--font-mono); color: var(--text-secondary); font-size: 0.8rem;">
-                        SECURE &bull; AUDITED &bull; NON-CUSTODIAL
-                    </div>
-                </div>
-            </section>
-
-        </main>
-
-        <div class="sidebar">
-            <div style="height: 10px; width: 10px; background: var(--accent-beige); border-radius: 50%; margin-bottom: 20px; animation: blink 2s infinite;"></div>
-            <span>NETWORK STATUS: ONLINE</span>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <section id="features" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-20">
+                <h2 class="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-gray-900">Alpha straight to your pocket.</h2>
+                <p class="text-gray-500 text-lg">We track on-chain movements across prediction markets to give you an institutional edge without the terminal bloat.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-card p-8 col-span-1 md:col-span-2 lg:col-span-2 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity pointer-events-none text-black">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" fill="currentColor" viewBox="0 0 256 256"><path d="M240,112a8,8,0,0,1-8,8H205.1l-25.29,66.38A16.06,16.06,0,0,1,164.84,200H48a16,16,0,0,1-16-16V56A16,16,0,0,1,48,40H232A8,8,0,0,1,240,112ZM161.87,184,186.25,120H136a8,8,0,0,1-6.66-12.22l27.18-42.92-23.77-9.33L101.46,184ZM122.54,56l38.82,15.25L138.67,112H197l-27.43,72H48V56Z"></path></svg>
+                    </div>
+                    <div class="relative z-10 h-full flex flex-col justify-between">
+                        <div class="mb-8">
+                            <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 text-black shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256"><path d="M230.16,91.36l-8-32a8,8,0,0,0-12.87-3.41l-29.39,26.12L132.88,27.1A8,8,0,0,0,123.1,27l-48,53.33L38.45,55.19a8,8,0,0,0-12.92,3.46l-8,32A8,8,0,0,0,25.27,100l36.31,36.31a48,48,0,0,0,67.88,0h0L158,107.78l17.76,19.74,5.43,21.72a8,8,0,0,0,7.76,6.06h.25a8,8,0,0,0,7.55-6.12l6-24A8,8,0,0,0,200.27,115l-13-14.47,35.16-31.25A8,8,0,0,0,230.16,91.36ZM96,128a32,32,0,1,1,32-32A32,32,0,0,1,96,128ZM37.76,88.45l2.6-10.38,20.8,15.6Zm170.83,5.17,17-15.11,2.6,10.4ZM232,208H24a8,8,0,0,1,0-16H232a8,8,0,0,1,0,16Z"></path></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900">Real-time Whale Alerts</h3>
+                            <p class="text-gray-500 mt-2 max-w-md font-medium">Instantly detect when a top 0.5% wallet enters a position. Our algorithm filters out noise and wash trading.</p>
+                        </div>
+                        <div class="w-full h-40 bg-gray-50 rounded-3xl relative overflow-hidden border border-gray-100">
+                            <svg class="absolute bottom-0 left-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                <path d="M0,80 Q20,70 40,40 T100,10" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                                <path d="M0,80 Q20,70 40,40 T100,10 L100,100 L0,100 Z" fill="url(#gradient-fill)" opacity="0.1"></path>
+                                <defs>
+                                    <linearGradient id="gradient-fill" x1="0" x2="0" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="#000"></stop>
+                                        <stop offset="100%" stop-color="transparent"></stop>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="absolute top-[10%] right-10 w-4 h-4 bg-[#DFFF00] rounded-full border-2 border-white shadow-md"></div>
+                            <div class="absolute top-[10%] right-10 transform translate-x-4 -translate-y-8 bg-black text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-lg">+450%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 col-span-1 relative overflow-hidden">
+                    <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 text-black shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256"><path d="M197.58,122.06l-46.75-21.65L129.18,53.66a15.79,15.79,0,0,0-28.74,0L78.79,100.41,32,122.06a15.79,15.79,0,0,0,0,28.74l46.75,21.65,21.65,46.75a15.79,15.79,0,0,0,28.74,0l21.65-46.75,46.75-21.65a15.79,15.79,0,0,0,0-28.74Zm-10.44,19.26-46.75,21.65a15.77,15.77,0,0,0-8.23,8.23L110.51,218,88.86,171.2a15.77,15.77,0,0,0-8.23-8.23L33.88,141.32l46.75-21.65a15.77,15.77,0,0,0,8.23-8.23L110.51,64.69l21.65,46.75a15.77,15.77,0,0,0,8.23,8.23l46.75,21.65Z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900">AI Signals</h3>
+                    <p class="text-gray-500 mt-2 text-sm leading-relaxed font-medium">News sentiment vs. betting odds analysis to find convergence opportunities before the market corrects.</p>
+                    <div class="mt-8 flex flex-col gap-3">
+                        <div class="pill-row px-4 py-2 flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-700">Sentiment</span>
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                        </div>
+                         <div class="pill-row px-4 py-2 flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-700">Odds Gap</span>
+                             <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 col-span-1 relative overflow-hidden group">
+                     <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 text-black shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900">1-Click Copy Trading</h3>
+                    <p class="text-gray-500 mt-2 text-sm leading-relaxed font-medium">Connect your wallet and mirror the top performers instantly. No switching apps.</p>
+                    <div class="mt-8 relative">
+                        <div class="bg-black text-[#DFFF00] text-sm font-bold py-3 px-4 rounded-full text-center cursor-pointer hover:scale-[1.02] transition-transform shadow-lg">Copy This Trade</div>
+                         <div class="absolute -right-2 -top-8 rotate-12 bg-[#9FB9FF] text-black text-[10px] font-bold px-3 py-1 rounded-full hidden group-hover:block transition-all shadow-sm">Executed!</div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 col-span-1 md:col-span-2 lg:col-span-2 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-black shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256"><path d="M244,56v64a12,12,0,0,1-12,12H214.24l-31.57,84.19A12,12,0,0,1,171.44,224H84.56a12,12,0,0,1-11.23-7.81L41.76,132H24a12,12,0,0,1-12-12V56A12,12,0,0,1,24,44H232A12,12,0,0,1,244,56ZM72,132v-8H44.86l28.69,76.51a4,4,0,0,0,3.74,2.6h23.16Zm112,71.11,28.69-76.51H184v-8h-32v96h23.16A4,4,0,0,0,184,203.11ZM128,136h24V44H104v92h24Z"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">Daily Wallet Rankings</h3>
+                                <p class="text-gray-500 text-sm">Top PnL performers updated hourly.</p>
+                            </div>
+                        </div>
+                        <button class="text-xs font-bold text-gray-500 bg-gray-100 rounded-full px-4 py-2 hover:bg-gray-200 transition-colors">View Full Leaderboard</button>
+                    </div>
+                    <div class="w-full">
+                        <div class="space-y-3">
+                            <div class="pill-row p-4 flex items-center justify-between hover:bg-white hover:shadow-md border border-transparent hover:border-gray-100">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-gray-400 font-bold text-sm">01</span>
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">7A</div>
+                                    <span class="font-mono text-sm font-medium">0x7a...4e9</span>
+                                </div>
+                                <div class="flex items-center gap-8">
+                                    <span class="text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded">88% WR</span>
+                                    <span class="text-black font-bold font-mono">+$420,000</span>
+                                </div>
+                            </div>
+                             <div class="pill-row p-4 flex items-center justify-between hover:bg-white hover:shadow-md border border-transparent hover:border-gray-100">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-gray-400 font-bold text-sm">02</span>
+                                    <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">VB</div>
+                                    <span class="font-mono text-sm font-medium">vitalik.eth</span>
+                                </div>
+                                <div class="flex items-center gap-8">
+                                    <span class="text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded">72% WR</span>
+                                    <span class="text-black font-bold font-mono">+$189,500</span>
+                                </div>
+                            </div>
+                             <div class="pill-row p-4 flex items-center justify-between hover:bg-white hover:shadow-md border border-transparent hover:border-gray-100">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-gray-400 font-bold text-sm">03</span>
+                                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-xs font-bold text-purple-600">3B</div>
+                                    <span class="font-mono text-sm font-medium">0x3b...221</span>
+                                </div>
+                                <div class="flex items-center gap-8">
+                                    <span class="text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded">69% WR</span>
+                                    <span class="text-black font-bold font-mono">+$142,200</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-white border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
+            <div class="flex-1 space-y-8">
+                <h2 class="text-4xl font-bold text-gray-900 tracking-tight">Institutional grade data infrastructure.</h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4 p-4 rounded-3xl hover:bg-gray-50 transition-colors">
+                        <div class="w-10 h-10 rounded-full bg-[#DFFF00] flex items-center justify-center shrink-0 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-gray-900 font-bold text-lg">Sub-second Latency</h4>
+                            <p class="text-gray-500 text-base mt-1">Direct integration with Polygon nodes ensures you see whale movements the millisecond they are confirmed on-chain.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 p-4 rounded-3xl hover:bg-gray-50 transition-colors">
+                        <div class="w-10 h-10 rounded-full bg-[#9FB9FF] flex items-center justify-center shrink-0 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-gray-900 font-bold text-lg">Wash Trading Filter</h4>
+                            <p class="text-gray-500 text-base mt-1">Our proprietary algorithms filter out self-dealing and wash trading to prevent false signals.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 p-4 rounded-3xl hover:bg-gray-50 transition-colors">
+                        <div class="w-10 h-10 rounded-full bg-black flex items-center justify-center shrink-0 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-gray-900 font-bold text-lg">Historical Backtesting</h4>
+                            <p class="text-gray-500 text-base mt-1">Access 3 years of historical prediction market data to validate your strategies before deploying capital.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-1 w-full relative">
+                <div class="glass-card rounded-[2.5rem] bg-[#F9FAFB] border border-gray-200 p-8 font-mono text-xs md:text-sm text-gray-600 shadow-2xl overflow-hidden relative">
+                    <div class="absolute top-6 right-6 flex gap-2">
+                         <div class="w-3 h-3 rounded-full bg-gray-200"></div>
+                         <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                    </div>
+                    <div class="mb-6 font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        Algorithm.ts
+                    </div>
+                    <div class="space-y-3 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div><span class="text-purple-600 font-bold">const</span> <span class="text-blue-600">whaleMonitor</span> = <span class="text-purple-600 font-bold">new</span> Polycool.Stream();</div>
+                        <div><br></div>
+                        <div>whaleMonitor.<span class="text-yellow-600">on</span>(<span class="text-green-600">'transaction'</span>, (tx) =&gt; {</div>
+                        <div class="pl-4 bg-gray-50 rounded p-1 -ml-1 border-l-2 border-[#DFFF00]"><span class="text-purple-600 font-bold">if</span> (tx.value &gt; <span class="text-orange-500 font-bold">50000</span> &amp;&amp; tx.winProb &lt; <span class="text-orange-500 font-bold">0.4</span>) {</div>
+                        <div class="pl-8"><span class="text-gray-400 italic">// High conviction contrarian bet detected</span></div>
+                        <div class="pl-8">Telegram.notify({</div>
+                        <div class="pl-12">type: <span class="text-green-600">'WHALE_ALERT'</span>,</div>
+                        <div class="pl-12">wallet: tx.from,</div>
+                        <div class="pl-12">market: tx.marketId,</div>
+                        <div class="pl-12">action: <span class="text-green-600">'COPY_TRADE_READY'</span></div>
+                        <div class="pl-8">});</div>
+                        <div class="pl-4">}</div>
+                        <div>});</div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2 text-xs text-gray-400">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        Listening for transactions...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 relative" id="pricing">
+        <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Stop gambling. Start trading.</h2>
+            <p class="text-xl text-gray-500 mb-12 max-w-2xl mx-auto">Join 2,000+ traders using Polycool to navigate prediction markets with institutional precision.</p>
+            <div class="glass-card max-w-sm mx-auto p-10 bg-white">
+                <div class="mb-6 flex justify-center">
+                    <span class="text-xs uppercase tracking-widest bg-gray-100 text-gray-600 font-bold px-3 py-1 rounded-full">Early Access</span>
+                </div>
+                <div class="flex items-baseline justify-center gap-1 mb-8">
+                    <span class="text-6xl font-extrabold text-gray-900">$0</span>
+                    <span class="text-gray-400 font-medium">/month</span>
+                </div>
+                <div class="space-y-4 mb-10 text-left">
+                     <div class="pill-row p-3 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-[#DFFF00] flex items-center justify-center shrink-0">
+                            <svg class="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="text-gray-700 font-medium">Real-time whale alerts</span>
+                    </div>
+                    <div class="pill-row p-3 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-[#DFFF00] flex items-center justify-center shrink-0">
+                            <svg class="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="text-gray-700 font-medium">Top 100 wallet leaderboard</span>
+                    </div>
+                     <div class="pill-row p-3 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-[#DFFF00] flex items-center justify-center shrink-0">
+                            <svg class="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="text-gray-700 font-medium">Telegram bot access</span>
+                    </div>
+                     <div class="pill-row p-3 flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-[#DFFF00] flex items-center justify-center shrink-0">
+                            <svg class="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="text-gray-700 font-medium">3 copy trades per day</span>
+                    </div>
+                </div>
+                <button class="w-full btn-primary py-4 rounded-full font-bold text-sm text-black shadow-xl shadow-lime-200">Launch Telegram Bot</button>
+                <p class="text-xs text-gray-400 mt-6 font-medium">Limited spots available for beta.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-gray-200 py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#DFFF00] rounded-full flex items-center justify-center text-black font-bold text-xs">P</div>
+                <span class="font-bold text-gray-900">Polycool</span>
+            </div>
+            <div class="flex gap-8 text-sm font-medium text-gray-500">
+                <a href="#" class="hover:text-black transition-colors">Twitter</a>
+                <a href="#" class="hover:text-black transition-colors">Telegram</a>
+                <a href="#" class="hover:text-black transition-colors">Terms</a>
+                <a href="#" class="hover:text-black transition-colors">Privacy</a>
+            </div>
+            <div class="text-xs font-medium text-gray-400">&copy; 2024 Polycool. Not financial advice.</div>
+        </div>
+    </footer>
 
 </body></html>
