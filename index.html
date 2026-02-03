@@ -48,10 +48,11 @@
             height: 100%;
             pointer-events: none;
             z-index: 0;
-            background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
-            background-size: 24px 24px;
-            opacity: 0.4;
-            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            background:
+                radial-gradient(circle at 50% 0%, #E8E8E8 0%, #FFFFFF 70%),
+                radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px);
+            background-size: 100% 100%, 20px 20px;
+            background-blend-mode: normal;
         }
 
         .noise-overlay {
@@ -254,15 +255,15 @@
 
         .section-header h2 {
             font-size: 2.5rem;
-            font-weight: 700;
+            font-weight: 600;
             line-height: 1.15;
             letter-spacing: -0.02em;
             margin-bottom: 16px;
-            text-transform: none;
+            text-transform: uppercase;
         }
 
         .section-header p {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--text-secondary);
             line-height: 1.6;
         }
@@ -272,12 +273,20 @@
             align-items: center;
             gap: 6px;
             margin-top: 16px;
-            font-size: 0.875rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
             font-weight: 500;
             color: var(--text-primary);
             text-decoration: none;
             border-bottom: 1px solid var(--text-primary);
             padding-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .section-header a:hover {
+            color: var(--accent-beige);
+            border-color: var(--accent-beige);
         }
 
         .features-grid {
@@ -316,11 +325,12 @@
         }
 
         .feature-card h3 {
-            font-size: 1.125rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 12px;
             color: var(--text-primary);
-            text-transform: none;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
         }
 
         .feature-card p {
@@ -331,16 +341,17 @@
         }
 
         .feature-link {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--accent-beige);
             text-decoration: none;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
         }
 
         .feature-link:hover {
-            color: var(--accent-beige);
+            color: var(--text-primary);
         }
 
         .feature-list {
